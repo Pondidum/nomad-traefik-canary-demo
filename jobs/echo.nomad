@@ -5,6 +5,11 @@ job "echo" {
   group "apis" {
     count = 3
 
+    update {
+      max_parallel = 1
+      canary = 1
+    }
+
     task "echo" {
       driver = "docker"
 
@@ -29,12 +34,33 @@ job "echo" {
       }
 
       service {
+        name = "echo-canary"
+        port = "http"
+
+        tags = []
+        canary_tags = [
+          "traefik.enable=true",
+          "traefik.frontend.rule=Host:api.localhost;Headers: Canary,true"
+        ]
+
+        check {
+          type = "http"
+          path = "/"
+          interval = "5s"
+          timeout = "1s"
+        }
+      }
+
+      service {
         name = "echo"
         port = "http"
 
         tags = [
           "traefik.enable=true",
           "traefik.frontend.rule=Host:api.localhost"
+        ]
+        canary_tags = [
+          "traefik.enable=false"
         ]
 
         check {
