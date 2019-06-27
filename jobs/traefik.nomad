@@ -9,7 +9,7 @@ job "traefik" {
       driver = "docker"
 
       config {
-        image = "traefik:latest"
+        image = "traefik:1.7.12"
 
         args = [
           "--api",
